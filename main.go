@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"io/ioutil"
 )
 
 const modeStream = "stream"
@@ -111,5 +112,14 @@ func processStream(info os.FileInfo)  {
 }
 
 func processFiles(dir string) {
-	fmt.Printf("Directory: %s\n", dir)
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		fmt.Printf("Could not read directory: %s\n", err.Error())
+		return
+	}
+
+	for _, f := range files {
+		fileMatcher := NewFile(dir + "/" + f.Name())
+		fileMatcher.Process(*pattern)
+	}
 }
