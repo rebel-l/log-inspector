@@ -17,6 +17,7 @@ const modeFile = "file"
 var pattern *string
 var directory *string
 var aws *bool
+var csv *bool
 var s summary.Summary
 
 func main() {
@@ -24,10 +25,16 @@ func main() {
 		return
 	}
 
+	o := summary.Options{}
+	if *csv {
+		o.Output = summary.OutputCsv
+	}
+
 	if *aws {
-		s = summary.New(*pattern, summary.StyleAws)
+		o.Style = summary.StyleAws
+		s = summary.New(*pattern, o)
 	} else {
-		s = summary.New(*pattern)
+		s = summary.New(*pattern, o)
 	}
 
 	info, _ := os.Stdin.Stat()
@@ -61,6 +68,7 @@ func initFlags() bool {
 	pattern = flag.String("pattern", "", "Pattern definition to look for")
 	directory = flag.String("dir", "", "Path of the files to inspect")
 	aws = flag.Bool("aws", false, "Flag indicates to parse AWS CloudFront logs")
+	csv = flag.Bool("csv", false, "Prints matches in csv format")
 	flag.Parse()
 
 	if *pattern == "" {

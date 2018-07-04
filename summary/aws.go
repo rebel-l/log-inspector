@@ -35,7 +35,12 @@ func (a *Aws) AddEntry(entry string) {
 }
 
 func (a *Aws) Print() {
+	headline := strings.Replace("%s[seperator]%s[seperator]%s[seperator]%s\n", "[seperator]", seperator, 3)
+	fmt.Printf(headline, "URI", "Count", "StatusCode", "UserAgents")
+
+	output := strings.Replace("%s[seperator]%d[seperator]%s[seperator]%s\n", "[seperator]", seperator, 3)
+
 	for _, v := range a.Entries {
-		fmt.Printf("%s | %d | %s | %s\n", v.Uri, v.Count, v.GetStatusCodes(), v.GetUserAgents())
+		fmt.Printf(output, v.Uri, v.Count, v.GetStatusCodes(), v.GetUserAgents())
 	}
 }

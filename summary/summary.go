@@ -3,20 +3,31 @@ package summary
 const StyleDefault = "default"
 const StyleAws = "aws"
 
+const OutputCsv = "csv"
+
+var seperator = " | "
+
 type Summary interface {
 	AddEntry(entry string)
 	Print()
 }
 
-func New(pattern string, style ...interface{}) Summary {
+func New(pattern string, options ...interface{}) Summary {
 	var s Summary
-	t := StyleDefault
+	style := StyleDefault
 
-	if len(style) == 1 {
-		t, _ = style[0].(string)
+	if len(options) == 1 {
+		o, _ := options[0].(Options)
+		if o.Style != "" {
+			style = o.Style
+		}
+
+		if o.Output == OutputCsv {
+			seperator = ";"
+		}
 	}
 
-	switch t {
+	switch style {
 	case StyleAws:
 		s = newAws()
 		break

@@ -28,8 +28,12 @@ func (d *Default) AddEntry(entry string) {
 }
 
 func (d *Default) Print() {
+	headline := strings.Replace("%s[seperator]%s\n", "[seperator]", seperator, 1)
+	fmt.Printf(headline, "Match", "Count")
+
+	output := strings.Replace("%s[seperator]%d\n", "[seperator]", seperator, 1)
 	for k, v := range d.Entries {
-		fmt.Printf("%s | %d\n", k, v)
+		fmt.Printf(output, k, v)
 	}
 }
 
