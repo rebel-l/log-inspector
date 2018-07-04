@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/rebel-l/log-inspector/summary"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
-	"io/ioutil"
 )
 
 const modeStream = "stream"
@@ -15,14 +16,20 @@ const modeFile = "file"
 
 var pattern *string
 var directory *string
-var s *Summary
+var aws *bool
+var s summary.Summary
 
 func main() {
 	if initFlags() == false {
 		return
 	}
 
-	s = NewSummary()
+	if *aws {
+		s = summary.New(*pattern, summary.StyleAws)
+	} else {
+		s = summary.New(*pattern)
+	}
+
 	info, _ := os.Stdin.Stat()
 	switch detectMode(info) {
 	case modeStream:
@@ -44,9 +51,8 @@ func match(pattern string, reader *bufio.Reader) {
 			break
 		}
 
-
 		if strings.Contains(input, pattern) {
-			s.AddEntry(extractPattern(input))
+			s.AddEntry(input)
 		}
 	}
 }
@@ -54,6 +60,7 @@ func match(pattern string, reader *bufio.Reader) {
 func initFlags() bool {
 	pattern = flag.String("pattern", "", "Pattern definition to look for")
 	directory = flag.String("dir", "", "Path of the files to inspect")
+	aws = flag.Bool("aws", false, "Flag indicates to parse AWS CloudFront logs")
 	flag.Parse()
 
 	if *pattern == "" {
@@ -86,23 +93,7 @@ func detectMode(fi os.FileInfo) string {
 	return ""
 }
 
-/**
-	extractPattern returns the part of the input string starting with the pattern until next whitespace character
- */
-func extractPattern(input string) string {
-	start := strings.Index(input, *pattern)
-	if start == -1 {
-		return ""
-	}
 
-	res := input[start:]
-	f := strings.Fields(res)
-	if len(f) > 0 {
-		return f[0]
-	}
-
-	return res
-}
 
 func processStream(info os.FileInfo)  {
 	if info.Size() > 0 {
